@@ -8,28 +8,41 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
+      # Checks this repository out as the tap tholent/tap and trusts it (Homebrew 6 loads nothing from a tap
+      # it has not been told to trust, docs.brew.sh/Tap-Trust). The pin is the one `brew tap-new` uses.
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@ceec4e8419bb3c97ce96e9dda7738499ed5f869d # 2026.11.14.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Tap this checkout under its real name, so brew reads the files being checked.
-      - name: Tap
-        run: |
-          tap="$(brew --repository)/Library/Taps/tholent/homebrew-tap"
-          mkdir -p "$(dirname "$tap")"
-          rm -rf "$tap"
-          ln -s "$GITHUB_WORKSPACE" "$tap"
+      # The gems `brew style` and `brew audit` install, kept between runs as `brew tap-new`'s template does.
+      - name: Cache Homebrew's Ruby gems
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ runner.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ runner.os }}-rubygems-
 
-      # Homebrew 6 loads nothing from a tap it has not been told to trust (docs.brew.sh/Tap-Trust).
-      # This job checks every file in the tap, so it trusts the whole tap.
-      - name: Trust
-        run: brew trust tholent/tap
+      # The downloaded apps, so a run that changes no cask downloads nothing again.
+      - name: Cache Homebrew's downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/Library/Caches/Homebrew/downloads
+          key: ${{ runner.os }}-downloads-${{ hashFiles('Casks/**', 'Formula/**') }}
+          restore-keys: ${{ runner.os }}-downloads-
 
       - name: Style
         run: brew style tholent/tap
 
+      # A cask whose releases are GitHub pre-releases is listed in audit_exceptions/github_prerelease_allowlist.json.
       - name: Audit
         run: brew audit --tap tholent/tap --online
 

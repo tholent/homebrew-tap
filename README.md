@@ -21,5 +21,8 @@ then go to System Settings → Privacy & Security and click **Open Anyway** next
   write to this repository. Change such a file in its project, not here: the next release overwrites it.
   - `Casks/quadrule.rb`: source `packaging/homebrew/quadrule.rb` in
     [tholent/quadrule](https://github.com/tholent/quadrule) (quadrule's ADR-025).
+- A cask whose releases are all GitHub pre-releases (Quadrule, until its 1.0) is listed in
+  `audit_exceptions/github_prerelease_allowlist.json` with `"any"`, so `brew audit` accepts its pre-releases and,
+  later, its full releases.
 - `.github/workflows/check.yml` runs `brew style` and `brew audit` on every cask and formula after each change, and
   installs and uninstalls each cask on a Mac.
