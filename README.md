@@ -8,6 +8,9 @@ tholent's [Homebrew](https://brew.sh) tap: every cask and formula tholent makes,
 
 `brew upgrade` moves each one to its newest release.
 
+Homebrew 6 runs nothing from a tap you have not trusted. Installing by the full name, as above, trusts that one cask
+or formula and nothing else in the tap ([Tap Trust](https://docs.brew.sh/Tap-Trust)).
+
 Quadrule is not signed by Apple yet, so macOS warns the first time you open it. Open it once and close the warning,
 then go to System Settings → Privacy & Security and click **Open Anyway** next to the message about Quadrule.
 

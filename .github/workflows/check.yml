@@ -22,6 +22,11 @@ jobs:
           rm -rf "$tap"
           ln -s "$GITHUB_WORKSPACE" "$tap"
 
+      # Homebrew 6 loads nothing from a tap it has not been told to trust (docs.brew.sh/Tap-Trust).
+      # This job checks every file in the tap, so it trusts the whole tap.
+      - name: Trust
+        run: brew trust tholent/tap
+
       - name: Style
         run: brew style tholent/tap
 
