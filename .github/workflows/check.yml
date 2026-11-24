@@ -1,0 +1,42 @@
+# Checks every cask and formula in the tap after each change: style and audit for all, then each cask
+# installed and uninstalled on a Mac. The repository is public, so GitHub's standard runners are free.
+name: Check the tap
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Tap this checkout under its real name, so brew reads the files being checked.
+      - name: Tap
+        run: |
+          tap="$(brew --repository)/Library/Taps/tholent/homebrew-tap"
+          mkdir -p "$(dirname "$tap")"
+          rm -rf "$tap"
+          ln -s "$GITHUB_WORKSPACE" "$tap"
+
+      - name: Style
+        run: brew style tholent/tap
+
+      - name: Audit
+        run: brew audit --tap tholent/tap --online
+
+      - name: Install and uninstall each cask
+        run: |
+          shopt -s nullglob
+          n=0
+          for f in Casks/*.rb; do
+            c=$(basename "$f" .rb)
+            brew install --cask "tholent/tap/$c"
+            brew uninstall --cask --zap "tholent/tap/$c"
+            echo "CASK name=$c install=ok uninstall=ok"
+            n=$((n + 1))
+          done
+          echo "CASKS checked=$n"
