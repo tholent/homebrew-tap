@@ -6,8 +6,8 @@
 # github.com/tholent/homebrew-tap. Edit the source, never the tap's copy: the next release
 # overwrites it.
 cask "quadrule" do
-  version "0.16.7"
-  sha256 "55d6389210588e71f70bb21ce3991ea3e02b00f4b9797305181d4445f2dbd0aa"
+  version "0.17.0"
+  sha256 "4655a155dfc1a6c5577a18ee62177a4cf600e159356672fa6600ca6beb1cfa88"
 
   url "https://github.com/tholent/quadrule/releases/download/v#{version}/quadrule-#{version}-macos-universal.dmg"
   name "Quadrule"
